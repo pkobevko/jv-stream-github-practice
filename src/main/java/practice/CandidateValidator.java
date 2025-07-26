@@ -1,6 +1,6 @@
 package practice;
 
-import java.util.Arrays;
+import java.util.Objects;
 import java.util.function.Predicate;
 import model.Candidate;
 
@@ -14,17 +14,18 @@ public class CandidateValidator implements Predicate<Candidate> {
 
     @Override
     public boolean test(Candidate candidate) {
+        if (candidate == null) {
+            return false;
+        }
         return candidate.getAge() >= MIN_AGE && candidate.isAllowedToVote()
-                && candidate.getNationality().equals(UKRAINIAN_NATIONALITY)
+                && Objects.equals(candidate.getNationality(), UKRAINIAN_NATIONALITY)
                 && checkPeriodsInUkr(candidate);
     }
 
     private boolean checkPeriodsInUkr(Candidate candidate) {
-        int[] periodsInUkr = Arrays.stream(candidate.getPeriodsInUkr().split(YEARS_SEPARATOR))
-                .mapToInt(Integer::parseInt)
-                .toArray();
-        return periodsInUkr[INDEX_OF_LAST_RESIDENCE_YEAR]
-                - periodsInUkr[INDEX_OF_FIRST_RESIDENCE_YEAR]
-                >= MIN_DURATION_OF_RESIDENCE_IN_UKRAINE;
+        String[] years = candidate.getPeriodsInUkr().split(YEARS_SEPARATOR);
+        int firstYear = Integer.parseInt(years[INDEX_OF_FIRST_RESIDENCE_YEAR]);
+        int lastYear = Integer.parseInt(years[INDEX_OF_LAST_RESIDENCE_YEAR]);
+        return lastYear - firstYear >= MIN_DURATION_OF_RESIDENCE_IN_UKRAINE;
     }
 }

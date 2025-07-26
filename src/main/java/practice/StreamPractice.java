@@ -12,6 +12,8 @@ import model.Person;
 public class StreamPractice {
     private static final String NUMBERS_SEPARATOR = ",";
 
+    private final CandidateValidator candidateValidator = new CandidateValidator();
+
     /**
      * Given list of strings where each element contains 1+ numbers:
      * input = {"5,30,100", "0,22,7", ...}
@@ -23,10 +25,14 @@ public class StreamPractice {
         return numbers.stream()
                 .flatMap(string -> Arrays.stream(string.split(NUMBERS_SEPARATOR)))
                 .mapToInt(Integer::parseInt)
-                .filter(integer -> integer % 2 == 0)
+                .filter(this::isEven)
                 .min()
                 .orElseThrow(() -> new RuntimeException(
                         String.format("Can't get min value from list: %s", numbers)));
+    }
+
+    private boolean isEven(int number) {
+        return number % 2 == 0;
     }
 
     /**
@@ -36,8 +42,8 @@ public class StreamPractice {
      */
     public Double getOddNumsAverage(List<Integer> numbers) {
         return IntStream.range(0, numbers.size())
-                .map(index -> index % 2 != 0 ? numbers.get(index) - 1 : numbers.get(index))
-                .filter(value -> value % 2 != 0)
+                .map(index -> !isEven(index) ? numbers.get(index) - 1 : numbers.get(index))
+                .filter(value -> !isEven(value))
                 .average()
                 .getAsDouble();
     }
@@ -108,7 +114,7 @@ public class StreamPractice {
      */
     public List<String> validateCandidates(List<Candidate> candidates) {
         return candidates.stream()
-                .filter(new CandidateValidator())
+                .filter(candidateValidator)
                 .map(Candidate::getName)
                 .sorted()
                 .collect(Collectors.toList());
